@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7th Grade Algebra Practice</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 2rem;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            margin: 0 1rem;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .stats-grid > div {
+            background-color: #eef2f7;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .problem-box {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #eef2f7;
+            border-radius: 10px;
+            letter-spacing: 2px;
+            direction: ltr;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1.2rem;
+            width: 80px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 1.5em;
+        }
+
+        .correct { color: var(--success-color); }
+        .incorrect { color: var(--error-color); }
+
+        /* Utility to hide arrows in number input */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #side-panel {
+            position: relative;
+            width: 320px;
+            background-color: var(--card-bg);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-right: 2rem;
+            height: auto;
+            direction: rtl; /* Right-to-left for Hebrew */
+        }
+
+        #solution-steps {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #solution-steps li {
+            background-color: #eef2f7;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div id="side-panel">
+    <h2>שלבי הפתרון</h2>
+    <ul id="solution-steps">
+        <!-- Steps will appear here after answering -->
+    </ul>
+</div>
+
+<div class="container">
+    <h1>Algebra Master</h1>
+    <p class="subtitle">7th Grade Level (Linear Equations)</p>
+    
+    <div class="stats-grid">
+        <div>Correct: <span id="correct-count">0</span></div>
+        <div>Incorrect: <span id="incorrect-count">0</span></div>
+        <div>Time: <span id="timer">00:00</span></div>
+    </div>
+
+    <div class="problem-box" id="problem">
+        <!-- Problem appears here -->
+    </div>
+
+    <div>
+        <span style="font-size: 1.5rem; margin-right: 5px;">x = </span>
+        <input type="number" id="userAnswer" placeholder="?" onkeydown="checkEnter(event)">
+        <button id="check-button" onclick="checkAnswer()">Check</button>
+    </div>
+
+    <div class="message" id="message"></div>
+    
+    <button id="next-button" onclick="nextProblem()" style="margin-top: 20px; display: none;">Next Question</button>
+</div>
+
+<script>
+    // --- DOM Elements ---
+    const dom = {
+        checkButton: document.getElementById('check-button'),
+        nextButton: document.getElementById('next-button'),
+        userAnswerInput: document.getElementById('userAnswer'),
+        message: document.getElementById('message'),
+        solutionSteps: document.getElementById('solution-steps'),
+        problem: document.getElementById('problem'),
+        correctCount: document.getElementById('correct-count'),
+        incorrectCount: document.getElementById('incorrect-count'),
+        timer: document.getElementById('timer'),
+        subtitle: document.querySelector('.subtitle')
+    };
+
+    // --- State Management ---
+    let state = {
+        level: 1,
+        correctInARow: 0,
+        correctCount: 0,
+        incorrectCount: 0,
+        startTime: null,
+        timerInterval: null,
+        currentProblem: {}
+    };
+
+    // --- Configuration ---
+    const config = {
+        LEVEL_UP_THRESHOLD: 5, // Number of correct answers in a row to level up
+        levels: {
+            1: { range: [-5, 5], types: ['base'] },
+            2: { range: [-8, 8], types: ['base', 'simpleXBothSides'] },
+            3: { range: [-10, 10], types: ['base', 'simpleXBothSides', 'xOnBothSides'] },
+            4: { range: [-10, 10], types: ['xOnBothSides', 'simpleXBothSides'] },
+            5: { range: [-12, 12], types: ['base', 'xOnBothSides', 'combine', 'simpleXBothSides'] },
+            6: { range: [-15, 15], types: ['xOnBothSides', 'combine', 'simpleXBothSides'] }
+        }
+    };
+    
+    // --- Utility Functions ---
+    const util = {
+        getRandomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+        getNonZeroRandom: (min, max) => {
+            let num = 0;
+            while (num === 0) num = util.getRandomInt(min, max);
+            return num;
+        },
+        formatSign: (num) => (num < 0 ? `- ${Math.abs(num)}` : `+ ${num}`),
+        formatTerm: (coeff, variable) => {
+            if (coeff === 0) return '';
+            if (coeff === 1) return variable;
+            if (coeff === -1) return `-${variable}`;
+            return `${coeff}${variable}`;
+        }
+    };
+
+    // --- Local Storage ---
+    function saveState() {
+        localStorage.setItem('algebraMasterLevel', state.level);
+    }
+
+    function loadState() {
+        const savedLevel = localStorage.getItem('algebraMasterLevel');
+        if (savedLevel) {
+            state.level = parseInt(savedLevel, 10);
+        }
+        // Counters are reset every session, so we don't load them.
+    }
+
+    // --- Timer ---
+    function startTimer() {
+        state.startTime = new Date();
+        state.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((new Date() - state.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const seconds = (elapsed % 60).toString().padStart(2, '0');
+            dom.timer.textContent = `${minutes}:${seconds}`;
+        }, 1000);
+    }
+
+    // --- Problem Generation ---
+    const generators = {
+        base() {
+            const { range } = config.levels[state.level];
+            const x = util.getNonZeroRandom(range[0], range[1]);
+            const a = util.getNonZeroRandom(range[0], range[1]);
+            const b = util.getRandomInt(range[0] * 2, range[1] * 2);
+            const c = a * x + b;
+
+            return { type: 'base', x, a, b, c, equation: `${util.formatTerm(a, 'x')} ${util.formatSign(b)} = ${c}` };
+        },
+        simpleXBothSides() {
+            const { range } = config.levels[state.level];
+            const x = util.getNonZeroRandom(range[0], range[1]);
+            let a = util.getNonZeroRandom(range[0], range[1]);
+            let c = util.getNonZeroRandom(range[0], range[1]);
+            // Ensure a and c are not equal to avoid 0x
+            while (a === c) c = util.getNonZeroRandom(range[0], range[1]);
+
+            const b = (c - a) * x;
+
+            return { type: 'simpleXBothSides', x, a, b, c, equation: `${util.formatTerm(a, 'x')} ${util.formatSign(b)} = ${util.formatTerm(c, 'x')}` };
+        },
+        xOnBothSides() {
+            const { range } = config.levels[state.level];
+            const x = util.getNonZeroRandom(range[0], range[1]);
+            let a = util.getNonZeroRandom(range[0], range[1]);
+            let c = util.getNonZeroRandom(range[0], range[1]);
+            // Ensure a and c are not equal to avoid 0x
+            while (a === c) c = util.getNonZeroRandom(range[0], range[1]);
+
+            const d = util.getRandomInt(range[0], range[1]);
+            const b = c * x + d - a * x;
+
+            return { type: 'xOnBothSides', x, a, b, c, d, equation: `${util.formatTerm(a, 'x')} ${util.formatSign(b)} = ${util.formatTerm(c, 'x')} ${util.formatSign(d)}` };
+        },
+        combine() {
+            const { range } = config.levels[state.level];
+            const x = util.getNonZeroRandom(range[0], range[1]);
+            let a = util.getNonZeroRandom(range[0], range[1]);
+            let b = util.getNonZeroRandom(range[0], range[1]);
+            while (a + b === 0) b = util.getNonZeroRandom(range[0], range[1]);
+
+            const d = util.getRandomInt(range[0] * 2, range[1] * 2);
+            const c = (a + b) * x - d;
+
+            return { type: 'combine', x, a, b, c, d, equation: `${util.formatTerm(a, 'x')} ${util.formatSign(b)}x = ${util.formatTerm(c, '')} + ${d}`};
+        }
+    };
+
+    function generateProblem() {
+        const { types } = config.levels[state.level];
+        const type = types[util.getRandomInt(0, types.length - 1)];
+        state.currentProblem = generators[type]();
+        dom.problem.textContent = state.currentProblem.equation;
+        dom.subtitle.textContent = `Level ${state.level}`;
+    }
+
+    // --- Solution Display ---
+    const solutionPrinters = {
+        base({ a, b, c, x }) {
+            let steps = '';
+            const result1 = c - b;
+            steps += `<li><span dir="ltr">${util.formatTerm(a, 'x')} = ${c} ${util.formatSign(-b)}</span></li>`;
+            steps += `<li><span dir="ltr">${util.formatTerm(a, 'x')} = ${result1}</span></li>`;
+            if (a !== 1) {
+                steps += `<li><span dir="ltr">${util.formatTerm(a, 'x')} / ${a} = ${result1} / ${a}</span></li>`;
+            }
+            steps += `<li><span dir="ltr">x = ${x}</span></li>`;
+            return steps;
+        },
+        simpleXBothSides({ a, b, c, x }) {
+            let steps = '';
+            const a_minus_c = a - c;
+            steps += `<li><span dir="ltr">${util.formatTerm(a, 'x')} ${util.formatSign(-c)}x = ${util.formatSign(-b)}</span></li>`;
+            steps += `<li><span dir="ltr">${util.formatTerm(a_minus_c, 'x')} = ${-b}</span></li>`;
+            if (a_minus_c !== 1 && a_minus_c !== -1) {
+                steps += `<li><span dir="ltr">${util.formatTerm(a_minus_c, 'x')} / ${a_minus_c} = ${-b} / ${a_minus_c}</span></li>`;
+            }
+            steps += `<li><span dir="ltr">x = ${x}</span></li>`;
+            return steps;
+        },
+        xOnBothSides({ a, b, c, d, x }) {
+            let steps = '';
+            const a_minus_c = a - c;
+            const d_minus_b = d - b;
+            steps += `<li><span dir="ltr">${util.formatTerm(a, 'x')} ${util.formatSign(-c)}x = ${d} ${util.formatSign(-b)}</span></li>`;
+            steps += `<li><span dir="ltr">${util.formatTerm(a_minus_c, 'x')} = ${d_minus_b}</span></li>`;
+            if (a_minus_c !== 1 && a_minus_c !== -1) {
+                steps += `<li><span dir="ltr">${util.formatTerm(a_minus_c, 'x')} / ${a_minus_c} = ${d_minus_b} / ${a_minus_c}</span></li>`;
+            }
+            steps += `<li><span dir="ltr">x = ${x}</span></li>`;
+            return steps;
+        },
+        combine({a, b, c, d, x}) {
+             let steps = '';
+             const a_plus_b = a + b;
+             const rightSide = c + d;
+             steps += `<li><span dir="ltr">(${a} + ${b})x = ${c} + ${d}</span></li>`;
+             steps += `<li><span dir="ltr">${a_plus_b}x = ${rightSide}</span></li>`;
+             if (a_plus_b !== 1 && a_plus_b !== -1) {
+                steps += `<li><span dir="ltr">${a_plus_b}x / ${a_plus_b} = ${rightSide} / ${a_plus_b}</span></li>`;
+            }
+            steps += `<li><span dir="ltr">x = ${x}</span></li>`;
+             return steps;
+        }
+    };
+
+    function showSolution() {
+        const { type } = state.currentProblem;
+        dom.solutionSteps.innerHTML = solutionPrinters[type](state.currentProblem);
+    }
+    
+    // --- Core Logic ---
+    function checkAnswer() {
+        if (dom.userAnswerInput.value === '') return;
+        const userVal = parseInt(dom.userAnswerInput.value, 10);
+
+        if (userVal === state.currentProblem.x) {
+            dom.message.textContent = "Correct! Great job.";
+            dom.message.className = "message correct";
+            state.correctCount++;
+            state.correctInARow++;
+            if (state.correctInARow >= config.LEVEL_UP_THRESHOLD && config.levels[state.level + 1]) {
+                state.level++;
+                state.correctInARow = 0;
+                dom.message.textContent += " Level Up!";
+            }
+        } else {
+            dom.message.textContent = `Incorrect. The answer was ${state.currentProblem.x}.`;
+            dom.message.className = "message incorrect";
+            state.incorrectCount++;
+            state.correctInARow = 0;
+        }
+        
+        saveState();
+        showSolution();
+        
+        dom.correctCount.textContent = state.correctCount;
+        dom.incorrectCount.textContent = state.incorrectCount;
+        dom.checkButton.disabled = true;
+        dom.userAnswerInput.disabled = true;
+        dom.nextButton.style.display = 'inline-block';
+        dom.nextButton.focus();
+    }
+
+    function nextProblem() {
+        dom.message.textContent = '';
+        dom.message.className = 'message';
+        dom.userAnswerInput.value = '';
+        dom.solutionSteps.innerHTML = '';
+        dom.checkButton.disabled = false;
+        dom.userAnswerInput.disabled = false;
+        dom.nextButton.style.display = 'none';
+        
+        generateProblem();
+        dom.userAnswerInput.focus();
+    }
+
+    function checkEnter(event) {
+        if (event.key === "Enter") {
+            if (!dom.checkButton.disabled) checkAnswer();
+            else nextProblem();
+        }
+    }
+
+    function init() {
+        loadState();
+        startTimer();
+        nextProblem();
+    }
+
+    // --- Initialization ---
+    init();
+</script>
+
+</body>
+</html>

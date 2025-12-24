@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hebrew Speech</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            direction: rtl;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 10px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        #info {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            direction: ltr;
+            text-align: left;
+        }
+        .hebrew-text {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <h1>בדיקת דיבור בעברית - Hebrew Speech Test</h1>
+
+    <div class="hebrew-text" id="hebrewText">אָלֶף</div>
+
+    <button onclick="testSpeech()">🔊 Test Hebrew Speech</button>
+    <button onclick="testSimple()">🔊 Test Simple (שלום)</button>
+    <button onclick="showVoices()">📋 Show Available Voices</button>
+
+    <div id="info"></div>
+
+    <script>
+        let voices = [];
+
+        function loadVoices() {
+            voices = window.speechSynthesis.getVoices();
+            console.log('Voices loaded:', voices.length);
+        }
+
+        // Load voices on page load and when they change
+        loadVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        setTimeout(loadVoices, 100);
+
+        function testSpeech() {
+            const text = document.getElementById('hebrewText').textContent;
+            speak(text);
+        }
+
+        function testSimple() {
+            speak('שלום');
+        }
+
+        function speak(text) {
+            console.log('Speaking:', text);
+
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'he-IL';
+                utterance.rate = 0.8;
+
+                // Find Hebrew voice
+                const hebrewVoice = voices.find(v =>
+                    v.lang.includes('he') || v.lang.includes('he-IL')
+                );
+
+                if (hebrewVoice) {
+                    utterance.voice = hebrewVoice;
+                    console.log('Using voice:', hebrewVoice.name);
+                } else {
+                    console.log('No Hebrew voice found, using default');
+                }
+
+                utterance.onstart = () => {
+                    console.log('✅ Speech started');
+                    updateInfo('✅ Speech is working!');
+                };
+
+                utterance.onend = () => {
+                    console.log('✅ Speech ended');
+                };
+
+                utterance.onerror = (e) => {
+                    console.error('❌ Speech error:', e);
+                    updateInfo('❌ Error: ' + e.error + ' - ' + e.message);
+                };
+
+                window.speechSynthesis.speak(utterance);
+                updateInfo('🎤 Attempting to speak: ' + text);
+            }, 50);
+        }
+
+        function showVoices() {
+            if (voices.length === 0) {
+                loadVoices();
+            }
+
+            let html = '<h3>Available Voices (' + voices.length + '):</h3>';
+
+            const hebrewVoices = voices.filter(v => v.lang.includes('he'));
+            if (hebrewVoices.length > 0) {
+                html += '<h4>Hebrew Voices:</h4><ul>';
+                hebrewVoices.forEach(v => {
+                    html += `<li>${v.name} (${v.lang}) - ${v.localService ? 'Local' : 'Network'}</li>`;
+                });
+                html += '</ul>';
+            } else {
+                html += '<p style="color: orange;">⚠️ No Hebrew voices found. The browser will use the default voice.</p>';
+                html += '<p>To get Hebrew speech:</p>';
+                html += '<ul>';
+                html += '<li><strong>Windows:</strong> Go to Settings > Time & Language > Speech > Add voices > Download Hebrew</li>';
+                html += '<li><strong>macOS:</strong> System Preferences > Accessibility > Spoken Content > System Voice > Customize > Hebrew</li>';
+                html += '<li><strong>Chrome:</strong> Uses system voices</li>';
+                html += '</ul>';
+            }
+
+            html += '<h4>All Voices:</h4><ul>';
+            voices.forEach(v => {
+                html += `<li>${v.name} (${v.lang})</li>`;
+            });
+            html += '</ul>';
+
+            updateInfo(html);
+        }
+
+        function updateInfo(html) {
+            document.getElementById('info').innerHTML = html;
+        }
+
+        // Show voices on load
+        setTimeout(() => {
+            if (voices.length > 0) {
+                showVoices();
+            }
+        }, 500);
+    </script>
+</body>
+</html>

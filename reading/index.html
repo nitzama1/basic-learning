@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תרגול קריאה בעברית</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body data-state="init">
+
+  <!-- API Configuration Section (shown on first use) -->
+  <div id="configContainer" class="modal">
+    <div class="modal-content">
+      <h2>הגדרת היישום</h2>
+      <p class="info-text">היישום מוגדר מראש עם מפתח API של OpenRouter. אתה יכול להתחיל להשתמש מיד!</p>
+
+      <div class="config-form">
+        <label for="apiKeyInput">מפתח API (אופציונלי - רק אם תרצה להחליף):</label>
+        <input
+          type="password"
+          id="apiKeyInput"
+          placeholder="הכנס את מפתח ה-API כאן"
+          class="api-input"
+        >
+
+        <p class="warning-text">⚠️ מפתח זה נשמר במחשב שלך בלבד</p>
+
+        <div class="config-buttons">
+          <button id="saveApiKey" class="button button-primary">שמור והתחל</button>
+        </div>
+
+        <div class="help-text">
+          <p><strong>איפה מקבלים מפתח API?</strong></p>
+          <ol>
+            <li>היכנס ל-<a href="https://openrouter.ai" target="_blank">openrouter.ai</a></li>
+            <li>צור חשבון או היכנס</li>
+            <li>עבור ל-"Keys"</li>
+            <li>צור מפתח חדש והעתק אותו לכאן</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingContainer" class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p id="loadingMessage">מייצר טקסט חדש...</p>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main id="mainContent">
+    <header class="app-header">
+      <h1>📚 תרגול קריאה בעברית</h1>
+      <div class="header-buttons">
+        <button id="generateText" class="button button-primary">צור טקסט חדש</button>
+        <button id="settingsButton" class="button button-secondary">הגדרות</button>
+      </div>
+    </header>
+
+    <!-- Reading Passage Section -->
+    <section id="textSection" class="text-section">
+      <h2 id="textTitle" class="text-title"></h2>
+      <div id="readingText" class="reading-text"></div>
+    </section>
+
+    <!-- Questions Section -->
+    <section id="questionsSection" class="questions-section">
+      <h3 class="section-title">שאלות הבנה</h3>
+      <div id="questionsContainer"></div>
+      <button id="submitAnswers" class="button button-success" disabled>שלח תשובות</button>
+    </section>
+  </main>
+
+  <!-- Results Display -->
+  <div id="resultsContainer" class="modal">
+    <!-- Results will be dynamically inserted here -->
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <h2>הגדרות</h2>
+      <div class="settings-content">
+        <div class="setting-item">
+          <label>מפתח API:</label>
+          <p class="current-key">מפתח שמור במערכת</p>
+        </div>
+        <button id="clearApiKey" class="button button-danger">מחק מפתח API</button>
+        <button id="closeSettings" class="button button-secondary">סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Notification -->
+  <div id="errorNotification" class="error-notification"></div>
+
+  <!-- JavaScript Files -->
+  <script src="config.js"></script>
+  <script src="api-handler.js"></script>
+  <script src="quiz-generator.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

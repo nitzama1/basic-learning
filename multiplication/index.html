@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Practice</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stats-panel">
+        <div class="stat">
+            <span class="stat-label" data-i18n="score">Score:</span>
+            <span id="score" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label" data-i18n="streak">Streak:</span>
+            <span id="streak" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label" data-i18n="questions">Questions:</span>
+            <span id="question-count" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label" data-i18n="time">Time:</span>
+            <span id="timer" class="stat-value">0s</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 data-i18n="title">🌟 Multiplication Practice 🌟</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="game-area">
+                    <div id="question-container" class="question-container">
+                        <div id="question" class="question"></div>
+                    </div>
+
+                    <div id="dots-container" class="dots-container">
+                        <div id="dots-visualization" class="dots-visualization"></div>
+                    </div>
+
+                    <div id="answers-container" class="answers-container">
+                        <button class="answer-btn" data-answer="0"></button>
+                        <button class="answer-btn" data-answer="1"></button>
+                        <button class="answer-btn" data-answer="2"></button>
+                        <button class="answer-btn" data-answer="3"></button>
+                    </div>
+
+                    <div id="type-answer-container" class="type-answer-container hidden">
+                        <input type="number" id="answer-input" class="answer-input" placeholder="?" autocomplete="off">
+                        <button id="submit-answer-btn" class="submit-answer-btn" data-i18n="submitAnswer">Submit</button>
+                    </div>
+
+                    <div id="feedback" class="feedback hidden"></div>
+                </div>
+
+                <div class="controls">
+                    <button id="start-btn" class="control-btn" data-i18n="startPractice">Start Practice</button>
+                    <button id="reset-btn" class="control-btn secondary" data-i18n="resetProgress">Reset Progress</button>
+                </div>
+
+                <div class="settings">
+                    <label>
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span data-i18n="soundEffects">Sound Effects</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="type-answer-toggle">
+                        <span data-i18n="typeAnswer">Type Answer</span>
+                    </label>
+                    <label>
+                        <span data-i18n="practiceRange">Practice Range:</span>
+                        <select id="range-select">
+                            <option value="5">1-6</option>
+                            <option value="10">1-10</option>
+                            <option value="12">1-12</option>
+                            <option value="15">1-15</option>
+                        </select>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="language-toggle">
+                        <span data-i18n="hebrew">עברית</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="visualization-container">
+                    <h3 class="viz-title" data-i18n="howTheyConnect">How They Connect</h3>
+                    <div id="visualization" class="visualization">
+                        <div class="viz-step" id="step1">
+                            <div class="viz-equation fade-in" data-i18n="startHere">Start here</div>
+                        </div>
+                        <div class="viz-arrow">↓</div>
+                        <div class="viz-step" id="step2">
+                            <div class="viz-equation"></div>
+                        </div>
+                        <div class="viz-arrow">↓</div>
+                        <div class="viz-step" id="step3">
+                            <div class="viz-equation"></div>
+                        </div>
+                    </div>
+                    <div class="viz-explanation" id="viz-explanation" data-i18n="answerQuestions">
+                        Answer questions to see the magic! ✨
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
