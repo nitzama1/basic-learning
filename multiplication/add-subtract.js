@@ -260,18 +260,18 @@ class AddSubtractGame {
             this.scoreEl.textContent = this.score;
             this.streakEl.textContent = this.streak;
 
-            // Check if should increase difficulty
-            if (this.streak % 5 === 0) {
-                this.pendingAction = 'levelUp';
-            } else {
-                this.pendingAction = 'nextQuestion';
-            }
+            // Increase difficulty gradually on each correct answer
+            this.increaseDifficultyGradually();
+            this.pendingAction = 'nextQuestion';
         } else {
             this.feedbackEl.innerHTML = `✗ טעות! התשובה הנכונה היא ${this.correctAnswer}`;
             this.feedbackEl.className = 'feedback wrong';
             this.playWrongSound();
             this.streak = 0;
             this.streakEl.textContent = this.streak;
+
+            // Decrease difficulty on wrong answer
+            this.decreaseDifficultyGradually();
             this.pendingAction = 'nextQuestion';
         }
 
@@ -343,25 +343,55 @@ class AddSubtractGame {
         ).join('');
     }
 
-    increaseDifficulty() {
-        // Increase difficulty by 10 each time, up to a max of 200
+    increaseDifficultyGradually() {
         const oldDifficulty = this.difficulty;
-        this.difficulty = Math.min(200, this.difficulty + 10);
+
+        // Increase difficulty based on current level:
+        // Lower levels (10-50): increase by 2 per correct answer
+        // Medium levels (50-100): increase by 3 per correct answer
+        // Higher levels (100-200): increase by 5 per correct answer
+        let increment;
+        if (this.difficulty < 50) {
+            increment = 2;
+        } else if (this.difficulty < 100) {
+            increment = 3;
+        } else {
+            increment = 5;
+        }
+
+        this.difficulty = Math.min(1000, this.difficulty + increment);
 
         if (this.difficulty !== oldDifficulty) {
             this.difficultyEl.textContent = this.difficulty;
-            this.feedbackEl.innerHTML = `🎉 מצוין! הקושי עלה - עכשיו תרגול עם מספרים עד ${this.difficulty}! 🎉`;
-            this.feedbackEl.className = 'feedback level-up';
-            this.playDifficultyUpSound();
 
-            this.saveProgress();
+            // Show level up notification every 10 points
+            if (Math.floor(this.difficulty / 10) > Math.floor(oldDifficulty / 10)) {
+                this.playDifficultyUpSound();
+            }
+        }
+    }
+
+    decreaseDifficultyGradually() {
+        const oldDifficulty = this.difficulty;
+
+        // Decrease difficulty on wrong answer:
+        // Lower levels (10-50): decrease by 3
+        // Medium levels (50-100): decrease by 5
+        // Higher levels (100+): decrease by 8
+        let decrement;
+        if (this.difficulty <= 50) {
+            decrement = 3;
+        } else if (this.difficulty <= 100) {
+            decrement = 5;
         } else {
-            // Already at max difficulty
-            this.feedbackEl.innerHTML = `🌟 אתה במקסימום הקושי! המשך כך! 🌟`;
-            this.feedbackEl.className = 'feedback level-up';
+            decrement = 8;
         }
 
-        this.showNextQuestion();
+        this.difficulty = Math.max(10, this.difficulty - decrement);
+
+        if (this.difficulty !== oldDifficulty) {
+            this.difficultyEl.textContent = this.difficulty;
+        }
     }
 
     resetProgress() {
