@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>למידת האלף-בית העברי - Learn Hebrew ABC</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('menu') }}" class="back-btn">🏠 חזרה לתפריט</a>
+            <h1>🌈 למד את האלף-בית 🌈</h1>
+            <h2>Learn the Hebrew Alphabet</h2>
+        </header>
+
+        <div class="game-area">
+            <!-- Current Letter Display -->
+            <div class="letter-card">
+                <div class="letter-display" id="currentLetter">א</div>
+                <button class="speak-btn" id="speakLetter">
+                    🔊 שמע את האות
+                </button>
+            </div>
+
+            <!-- Word Options -->
+            <div class="words-grid" id="wordsGrid">
+                <!-- Words will be dynamically inserted here -->
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="feedback" id="feedback"></div>
+
+            <!-- Progress and Controls -->
+            <div class="controls">
+                <button class="next-btn" id="nextBtn">
+                    אות הבאה ➡️
+                </button>
+                <div class="progress">
+                    <span id="progressText">אות 1 מתוך 22</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Letter Grid (All Letters) -->
+        <div class="alphabet-grid">
+            <h3>כל האותיות - All Letters</h3>
+            <div class="letters-container" id="lettersContainer">
+                <!-- Letters will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' versions)",
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' install --list)",
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' local 3.11.0)",
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' install 3.11.0)",
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' install 3.10.5)",
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' local 3.10.5)",
+      "Bash(python -m pip install:*)",
+      "Bash('C:\\\\Users\\\\Nitzan Malichi\\\\.pyenv\\\\pyenv-win\\\\bin\\\\pyenv' exec python -m pip install flask)"
+    ]
+  }
+}

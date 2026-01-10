@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק כתיבה - Writing Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/writing-game.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('menu') }}" class="back-btn">🏠 חזרה לתפריט</a>
+            <h1>✍️ משחק כתיבה ✍️</h1>
+            <h2>Writing Game</h2>
+        </header>
+
+        <div class="game-area">
+            <!-- Listen Section -->
+            <div class="listen-section">
+                <div class="word-display">
+                    <div class="word-emoji" id="wordEmoji">🍎</div>
+                    <button class="listen-btn" id="listenBtn">
+                        <div class="listen-icon">🔊</div>
+                        <div class="listen-text">תקשיב למילה</div>
+                    </button>
+                </div>
+                <div class="hint">שמע את המילה וכתוב אותה עם האותיות למטה</div>
+            </div>
+
+            <!-- Writing Area -->
+            <div class="writing-area">
+                <div class="written-word" id="writtenWord">
+                    <!-- Letters typed by user will appear here -->
+                </div>
+                <button class="clear-btn" id="clearBtn">🗑️ נקה</button>
+            </div>
+
+            <!-- Hebrew Keyboard -->
+            <div class="keyboard-section">
+                <h3>בחר אותיות:</h3>
+                <div class="keyboard" id="keyboard">
+                    <!-- Letter buttons will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Check Answer Button -->
+            <div class="check-section">
+                <button class="check-btn" id="checkBtn">✅ בדוק תשובה</button>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="feedback" id="feedback"></div>
+
+            <!-- Progress and Score -->
+            <div class="controls">
+                <div class="score-display">
+                    <span class="score-label">ניקוד:</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="progress">
+                    <span id="progressText">מילה 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/writing-game.js') }}"></script>
+</body>
+</html>

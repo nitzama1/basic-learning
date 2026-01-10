@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="back-button">
+        <a href="menu.html" id="back-link" data-i18n="backToMenu">← Back to Menu</a>
+    </div>
+
     <div class="stats-panel">
         <div class="stat">
             <span class="stat-label" data-i18n="score">Score:</span>
@@ -55,6 +59,19 @@
                     </div>
 
                     <div id="feedback" class="feedback hidden"></div>
+
+                    <div id="recall-container" class="recall-container hidden">
+                        <div class="recall-question" data-i18n="recallQuestion">What was the question and answer?</div>
+                        <div class="recall-input-group">
+                            <input type="number" id="recall-num1" class="recall-input" placeholder="?" autocomplete="off">
+                            <span id="recall-operator" class="recall-operator">×</span>
+                            <input type="number" id="recall-num2" class="recall-input" placeholder="?" autocomplete="off">
+                            <span class="recall-operator">=</span>
+                            <input type="number" id="recall-answer" class="recall-input" placeholder="?" autocomplete="off">
+                        </div>
+                        <button id="recall-submit-btn" class="submit-answer-btn" data-i18n="checkRecall">Check</button>
+                        <div id="recall-feedback" class="recall-feedback hidden"></div>
+                    </div>
                 </div>
 
                 <div class="controls">

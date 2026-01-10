@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(\"C:\\\\Python314\\\\python.exe\" -m pip install flask)",
+      "Bash(\"C:\\\\Python314\\\\python.exe\" -m pip install gTTS)"
+    ]
+  }
+}

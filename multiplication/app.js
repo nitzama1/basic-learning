@@ -190,6 +190,15 @@ class MultiplicationGame {
         this.rangeSelect = document.getElementById('range-select');
         this.languageToggle = document.getElementById('language-toggle');
 
+        // Recall elements
+        this.recallContainer = document.getElementById('recall-container');
+        this.recallNum1 = document.getElementById('recall-num1');
+        this.recallNum2 = document.getElementById('recall-num2');
+        this.recallAnswer = document.getElementById('recall-answer');
+        this.recallOperator = document.getElementById('recall-operator');
+        this.recallSubmitBtn = document.getElementById('recall-submit-btn');
+        this.recallFeedback = document.getElementById('recall-feedback');
+
         // Visualization elements
         this.vizStep1 = document.getElementById('step1').querySelector('.viz-equation');
         this.vizStep2 = document.getElementById('step2').querySelector('.viz-equation');
@@ -233,6 +242,26 @@ class MultiplicationGame {
         this.answerInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.submitTypedAnswer();
+            }
+        });
+
+        // Recall submit button
+        this.recallSubmitBtn.addEventListener('click', () => this.checkRecall());
+
+        // Enter key to submit recall
+        this.recallNum1.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.recallNum2.focus();
+            }
+        });
+        this.recallNum2.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.recallAnswer.focus();
+            }
+        });
+        this.recallAnswer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.checkRecall();
             }
         });
 
@@ -430,7 +459,7 @@ class MultiplicationGame {
         this.questionCountEl.textContent = this.questionCount;
 
         if (isCorrect) {
-            this.feedbackEl.innerHTML = `${languageManager.t('correct')}<br><button id="next-btn" class="continue-btn">${languageManager.t('nextQuestion')}</button>`;
+            this.feedbackEl.innerHTML = languageManager.t('correct');
             this.feedbackEl.className = 'feedback correct';
             this.playCorrectSound();
             this.score++;
@@ -441,16 +470,6 @@ class MultiplicationGame {
             // Record the answer
             this.tracker.recordAnswer(this.currentQuestion, isCorrect);
             this.saveSessionProgress();
-
-            // Wait for user to click next button
-            setTimeout(() => {
-                const nextBtn = document.getElementById('next-btn');
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', () => {
-                        this.showNextQuestion();
-                    });
-                }
-            }, 100);
         } else {
             // Create explanation showing the relationship
             let explanation = '';
@@ -461,7 +480,6 @@ class MultiplicationGame {
                 explanation = `${languageManager.t('wrong')} ${this.correctAnswer}<br>`;
                 explanation += `<span class="relationship">${languageManager.t('youCanCheck')} ${this.correctAnswer} ÷ ${this.currentQuestion.displayNum2} = ${this.currentQuestion.displayNum1}</span>`;
             }
-            explanation += `<br><button id="continue-btn" class="continue-btn">${languageManager.t('clickToContinue')}</button>`;
 
             this.feedbackEl.innerHTML = explanation;
             this.feedbackEl.className = 'feedback wrong';
@@ -472,16 +490,109 @@ class MultiplicationGame {
             // Record the answer
             this.tracker.recordAnswer(this.currentQuestion, isCorrect);
             this.saveSessionProgress();
+        }
 
-            // Wait for user to click continue button
+        // After showing the feedback, wait a moment then ask for recall
+        setTimeout(() => {
+            this.showRecallQuestion();
+        }, 2000);
+    }
+
+    showRecallQuestion() {
+        // Hide feedback
+        this.feedbackEl.classList.add('hidden');
+
+        // Hide the question to force memory recall
+        this.questionEl.style.filter = 'blur(10px)';
+        this.questionEl.style.userSelect = 'none';
+
+        // Show recall container
+        this.recallContainer.classList.remove('hidden');
+
+        // Update operator symbol
+        const operator = this.currentQuestion.isDivision ? '÷' : '×';
+        this.recallOperator.textContent = operator;
+
+        // Clear inputs
+        this.recallNum1.value = '';
+        this.recallNum2.value = '';
+        this.recallAnswer.value = '';
+        this.recallNum1.disabled = false;
+        this.recallNum2.disabled = false;
+        this.recallAnswer.disabled = false;
+        this.recallSubmitBtn.disabled = false;
+        this.recallFeedback.classList.add('hidden');
+
+        // Focus on first input
+        setTimeout(() => this.recallNum1.focus(), 100);
+    }
+
+    checkRecall() {
+        const num1 = parseInt(this.recallNum1.value);
+        const num2 = parseInt(this.recallNum2.value);
+        const answer = parseInt(this.recallAnswer.value);
+
+        if (isNaN(num1) || isNaN(num2) || isNaN(answer) ||
+            this.recallNum1.value.trim() === '' ||
+            this.recallNum2.value.trim() === '' ||
+            this.recallAnswer.value.trim() === '') {
+            return; // Don't process empty or invalid input
+        }
+
+        const questionCorrect = num1 === this.currentQuestion.displayNum1 && num2 === this.currentQuestion.displayNum2;
+        const answerCorrect = answer === this.correctAnswer;
+        const isCorrect = questionCorrect && answerCorrect;
+
+        // Disable inputs
+        this.recallNum1.disabled = true;
+        this.recallNum2.disabled = true;
+        this.recallAnswer.disabled = true;
+        this.recallSubmitBtn.disabled = true;
+
+        if (isCorrect) {
+            this.recallFeedback.textContent = languageManager.t('recallCorrect');
+            this.recallFeedback.className = 'recall-feedback correct';
+            this.recallFeedback.classList.remove('hidden');
+            this.playCorrectSound();
+
+            // Show next question after a delay
             setTimeout(() => {
-                const continueBtn = document.getElementById('continue-btn');
-                if (continueBtn) {
-                    continueBtn.addEventListener('click', () => {
-                        this.showNextQuestion();
-                    });
-                }
-            }, 100);
+                this.recallContainer.classList.add('hidden');
+                // Restore question visibility
+                this.questionEl.style.filter = 'none';
+                this.questionEl.style.userSelect = 'auto';
+                this.showNextQuestion();
+            }, 1500);
+        } else {
+            const operator = this.currentQuestion.isDivision ? '÷' : '×';
+            let feedbackMsg = `${languageManager.t('recallWrong')} ${this.currentQuestion.displayNum1} ${operator} ${this.currentQuestion.displayNum2} = ${this.correctAnswer}`;
+
+            // Provide specific feedback
+            if (!questionCorrect && !answerCorrect) {
+                feedbackMsg = `${languageManager.t('recallWrongBoth')} ${this.currentQuestion.displayNum1} ${operator} ${this.currentQuestion.displayNum2} = ${this.correctAnswer}`;
+            } else if (!questionCorrect) {
+                feedbackMsg = `${languageManager.t('recallWrongQuestion')} ${this.currentQuestion.displayNum1} ${operator} ${this.currentQuestion.displayNum2}`;
+            } else if (!answerCorrect) {
+                feedbackMsg = `${languageManager.t('recallWrongAnswer')} ${this.correctAnswer}`;
+            }
+
+            this.recallFeedback.textContent = feedbackMsg;
+            this.recallFeedback.className = 'recall-feedback wrong';
+            this.recallFeedback.classList.remove('hidden');
+            this.playWrongSound();
+
+            // Allow retry
+            setTimeout(() => {
+                this.recallNum1.value = '';
+                this.recallNum2.value = '';
+                this.recallAnswer.value = '';
+                this.recallNum1.disabled = false;
+                this.recallNum2.disabled = false;
+                this.recallAnswer.disabled = false;
+                this.recallSubmitBtn.disabled = false;
+                this.recallFeedback.classList.add('hidden');
+                this.recallNum1.focus();
+            }, 2500);
         }
     }
 
@@ -853,6 +964,7 @@ const translations = {
         submitAnswer: 'Submit',
         practiceRange: 'Practice Range:',
         hebrew: 'עברית',
+        backToMenu: '← Back to Menu',
         howTheyConnect: 'How They Connect',
         startHere: 'Start here',
         correct: '✓ Correct!',
@@ -879,7 +991,14 @@ const translations = {
         daysAgo: 'days ago',
         resetConfirm: 'Are you sure you want to reset all progress?',
         progressReset: 'Progress reset! Start practicing again.',
-        answerQuestions: 'Answer questions to see the magic! ✨'
+        answerQuestions: 'Answer questions to see the magic! ✨',
+        recallQuestion: 'What was the question and answer?',
+        checkRecall: 'Check',
+        recallCorrect: '✓ Great memory!',
+        recallWrong: '✗ It was:',
+        recallWrongBoth: '✗ It was:',
+        recallWrongQuestion: '✗ The question was:',
+        recallWrongAnswer: '✗ The answer was:'
     },
     he: {
         title: '🌟 תרגול כפל וחילוק 🌟',
@@ -896,6 +1015,7 @@ const translations = {
         submitAnswer: 'שלח',
         practiceRange: 'טווח תרגול:',
         hebrew: 'English',
+        backToMenu: 'חזרה לתפריט ←',
         howTheyConnect: 'איך הם מתחברים',
         startHere: 'התחל כאן',
         correct: '✓ נכון!',
@@ -922,7 +1042,14 @@ const translations = {
         daysAgo: 'ימים',
         resetConfirm: 'האם אתה בטוח שברצונך לאפס את כל ההתקדמות?',
         progressReset: 'ההתקדמות אופסה! התחל לתרגל שוב.',
-        answerQuestions: 'ענה על שאלות כדי לראות את הקסם! ✨'
+        answerQuestions: 'ענה על שאלות כדי לראות את הקסם! ✨',
+        recallQuestion: 'מה היו השאלה והתשובה?',
+        checkRecall: 'בדוק',
+        recallCorrect: '✓ זיכרון מעולה!',
+        recallWrong: '✗ זה היה:',
+        recallWrongBoth: '✗ זה היה:',
+        recallWrongQuestion: '✗ השאלה הייתה:',
+        recallWrongAnswer: '✗ התשובה הייתה:'
     }
 };
 

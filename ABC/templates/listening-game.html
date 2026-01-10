@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק האזנה - Listening Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/listening-game.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('menu') }}" class="back-btn">🏠 חזרה לתפריט</a>
+            <h1>🎧 משחק האזנה 🎧</h1>
+            <h2>Listen and Choose</h2>
+        </header>
+
+        <div class="game-area">
+            <!-- Listen Button -->
+            <div class="listen-section">
+                <button class="big-listen-btn" id="listenBtn">
+                    <div class="listen-icon">🔊</div>
+                    <div class="listen-text">לחץ לשמיעה</div>
+                    <div class="listen-subtext">Click to Listen</div>
+                </button>
+                <div class="hint" id="hint">תקשיב לשם האות ובחר את האות הנכונה</div>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="options-grid" id="optionsGrid">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="feedback" id="feedback"></div>
+
+            <!-- Progress and Score -->
+            <div class="controls">
+                <div class="score-display">
+                    <span class="score-label">ניקוד:</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="progress">
+                    <span id="progressText">שאלה 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/listening-game.js') }}"></script>
+</body>
+</html>

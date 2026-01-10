@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תרגול חיבור</title>
+    <link rel="stylesheet" href="exercise-style.css">
+</head>
+<body>
+    <div class="back-button">
+        <a href="menu.html">← חזרה לתפריט</a>
+    </div>
+
+    <div class="stats-panel">
+        <div class="stat">
+            <span class="stat-label">רמה</span>
+            <span id="level" class="stat-value">1</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">ניקוד</span>
+            <span id="score" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">רצף</span>
+            <span id="streak" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">שאלות</span>
+            <span id="question-count" class="stat-value">0</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>➕ תרגול חיבור ➕</h1>
+            <p class="level-description" id="level-description">רמה 1: מספרים עד 10</p>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="game-area">
+                    <div id="question-container" class="question-container">
+                        <div id="question" class="question"></div>
+                    </div>
+
+                    <div id="answers-container" class="answers-container">
+                        <button class="answer-btn" data-answer="0"></button>
+                        <button class="answer-btn" data-answer="1"></button>
+                        <button class="answer-btn" data-answer="2"></button>
+                        <button class="answer-btn" data-answer="3"></button>
+                    </div>
+
+                    <div id="feedback" class="feedback hidden"></div>
+                </div>
+
+                <div class="controls">
+                    <button id="start-btn" class="control-btn">התחל תרגול</button>
+                    <button id="reset-btn" class="control-btn secondary">אפס התקדמות</button>
+                </div>
+
+                <div class="settings">
+                    <label>
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span>אפקטי קול</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="solution-container">
+                    <h3 class="solution-title">פתרון בצד</h3>
+                    <div id="vertical-solution" class="vertical-solution">
+                        <div class="instruction">ענה על שאלה כדי לראות את הפתרון!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="addition.js"></script>
+</body>
+</html>

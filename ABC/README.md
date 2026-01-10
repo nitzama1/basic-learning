@@ -1,12 +1,15 @@
 # Hebrew Alphabet Learning App - למד את האלף-בית
 
-A fun, interactive web application to help children learn the Hebrew alphabet (Alef-Bet) by connecting letters with words.
+A fun, interactive Flask web application to help children learn the Hebrew alphabet (Alef-Bet) by connecting letters with words.
 
 ## Features
 
 🔤 **All 22 Hebrew Letters** - Complete Alef-Bet from א to ת
 
-🎮 **Interactive Matching Game** - Click on words that start with the current letter
+🎮 **Three Interactive Games**:
+   - **Hebrew ABC Learning** - Match letters with words
+   - **Listening Game** - Listen and identify letters
+   - **Writing Game** - Spell words using Hebrew letters
 
 🔊 **Text-to-Speech** - Hear the pronunciation of letters and words in Hebrew
 
@@ -16,13 +19,32 @@ A fun, interactive web application to help children learn the Hebrew alphabet (A
 
 🎯 **Instant Feedback** - Positive reinforcement for correct answers
 
+## Installation
+
+1. **Clone or download this repository**
+
+2. **Install Python dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run the Flask application**
+   ```bash
+   python app.py
+   ```
+
+4. **Open your browser**
+   - Navigate to `http://localhost:5000`
+   - The main menu will appear with all available games
+
 ## How to Use
 
-1. **Open the App**
-   - Simply open `index.html` in any modern web browser (Chrome, Firefox, Safari, Edge)
-   - Double-click the file or right-click and select "Open with" → your browser
+1. **Start the Application**
+   - Run `python app.py` from the command line
+   - Open your browser to `http://localhost:5000`
+   - Select a game from the main menu
 
-2. **Learning Flow**
+2. **Hebrew ABC Learning Game**
    - The current letter is displayed in large text at the top
    - Click the "🔊 שמע את האות" button to hear the letter pronounced
    - Four words are shown below - click on the words that START with the current letter
@@ -30,16 +52,25 @@ A fun, interactive web application to help children learn the Hebrew alphabet (A
    - Wrong answers will shake and turn red
    - Click "אות הבאה" to move to the next letter
 
-3. **Quick Navigation**
-   - Scroll down to see all 22 letters in a grid
-   - Click any letter to jump directly to it
-   - Letters you've practiced will be highlighted in green
-   - The current letter pulses in purple
+3. **Listening Game**
+   - Click the listen button to hear a letter name
+   - Choose the correct letter from the options
+   - Track your score as you progress
+
+4. **Writing Game**
+   - Listen to a Hebrew word
+   - Spell it using the on-screen Hebrew keyboard
+   - Check your answer and earn points
+
+5. **Quick Navigation**
+   - Use the back button to return to the main menu
+   - Navigate between different games freely
 
 ## Technical Requirements
 
+- Python 3.7 or higher
+- Flask web framework (installed via requirements.txt)
 - Modern web browser with JavaScript enabled
-- Internet connection is NOT required (works offline!)
 - Browser with Hebrew font support (all modern browsers)
 - Text-to-speech requires browser support (works in Chrome, Firefox, Safari, Edge)
 
@@ -78,12 +109,29 @@ Each letter comes with 4 example words:
 ✅ Safari
 ⚠️ Older browsers may have limited TTS support
 
-## Files Included
+## Project Structure
 
-- `index.html` - Main application page
-- `styles.css` - Styling and animations
-- `script.js` - Game logic and interactivity
-- `README.md` - This file
+```
+ABC/
+├── app.py                      # Flask application (main entry point)
+├── requirements.txt            # Python dependencies
+├── templates/                  # HTML templates
+│   ├── menu.html              # Main menu
+│   ├── index.html             # Hebrew ABC learning game
+│   ├── listening-game.html    # Listening game
+│   └── writing-game.html      # Writing game
+├── static/                     # Static assets
+│   ├── css/                   # Stylesheets
+│   │   ├── menu-styles.css
+│   │   ├── styles.css
+│   │   ├── listening-game.css
+│   │   └── writing-game.css
+│   └── js/                    # JavaScript files
+│       ├── script.js
+│       ├── listening-game.js
+│       └── writing-game.js
+└── README.md                   # This file
+```
 
 ## Troubleshooting
 
