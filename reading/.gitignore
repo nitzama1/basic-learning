@@ -1,0 +1,25 @@
+# API Keys and Environment Variables
+.env
+.env.local
+.env.*.local
+*.key
+
+# Node modules
+node_modules/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
