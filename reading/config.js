@@ -42,6 +42,36 @@ const CONFIG = {
     'צמחים'           // Plants
   ],
 
+  // Science Topics for Enrichment Section
+  SCIENCE_TOPICS: [
+    'מערכת השמש והכוכבים',      // Solar System and Stars
+    'דינוזאורים ואבולוציה',     // Dinosaurs and Evolution
+    'גוף האדם ומערכותיו',       // Human Body and Systems
+    'אנרגיה וחשמל',            // Energy and Electricity
+    'מים ומחזור המים',          // Water and Water Cycle
+    'צמחים ופוטוסינתזה',       // Plants and Photosynthesis
+    'בעלי חיים והסתגלות',       // Animals and Adaptation
+    'כח הכבידה ותנועה',        // Gravity and Motion
+    'מזג אוויר ואקלים',         // Weather and Climate
+    'מבנה החומר',              // Structure of Matter
+    'אור וצבעים',              // Light and Colors
+    'קול וגלים',               // Sound and Waves
+    'מגנטיות',                 // Magnetism
+    'המוח והזיכרון',           // Brain and Memory
+    'DNA וגנטיקה',             // DNA and Genetics
+    'אקולוגיה ושרשרת מזון',     // Ecology and Food Chain
+    'טכנולוגיה ומחשבים',       // Technology and Computers
+    'כימיה ותגובות כימיות'     // Chemistry and Chemical Reactions
+  ],
+
+  // Science Quiz Settings
+  SCIENCE_QUIZ_SETTINGS: {
+    questionsPerArticle: 5,
+    optionsPerQuestion: 4,
+    minWordCount: 150,
+    maxWordCount: 250
+  },
+
   // Encouragement Messages Based on Score
   ENCOURAGEMENT_MESSAGES: {
     perfect: [

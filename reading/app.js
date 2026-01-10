@@ -4,6 +4,8 @@ class ReadingApp {
   constructor() {
     this.apiHandler = null;
     this.quizManager = new QuizManager();
+    this.scienceGenerator = null;
+    this.currentMode = 'reading'; // 'reading' or 'science'
     this.currentState = 'init'; // init, config, ready, loading, answering, results
 
     this.initializeApp();
@@ -25,13 +27,15 @@ class ReadingApp {
 
       // Initialize API handler with default key
       this.apiHandler = new APIHandler(defaultKey, CONFIG.API_PROVIDERS.OPENROUTER);
+      this.scienceGenerator = new ScienceGenerator(this.apiHandler);
       this.setState('ready');
-      this.showMainInterface();
+      this.showMenu();
     } else if (storedKey && storedKey.trim().length > 0) {
-      // API key exists, initialize handler and show main interface
+      // API key exists, initialize handler and show menu
       this.apiHandler = new APIHandler(storedKey, storedProvider);
+      this.scienceGenerator = new ScienceGenerator(this.apiHandler);
       this.setState('ready');
-      this.showMainInterface();
+      this.showMenu();
     } else {
       // No API key, show configuration
       this.setState('config');
@@ -45,6 +49,34 @@ class ReadingApp {
    * Attach all event listeners
    */
   attachEventListeners() {
+    // Menu navigation
+    const menuReadingBtn = document.getElementById('menuReading');
+    if (menuReadingBtn) {
+      menuReadingBtn.addEventListener('click', () => this.switchToReading());
+    }
+
+    const menuScienceBtn = document.getElementById('menuScience');
+    if (menuScienceBtn) {
+      menuScienceBtn.addEventListener('click', () => this.switchToScience());
+    }
+
+    // Back to menu buttons
+    const backToMenuFromReading = document.getElementById('backToMenuFromReading');
+    if (backToMenuFromReading) {
+      backToMenuFromReading.addEventListener('click', () => this.backToMenu());
+    }
+
+    const backToMenuFromScience = document.getElementById('backToMenuFromScience');
+    if (backToMenuFromScience) {
+      backToMenuFromScience.addEventListener('click', () => this.backToMenu());
+    }
+
+    // Menu settings button
+    const menuSettingsBtn = document.getElementById('menuSettingsButton');
+    if (menuSettingsBtn) {
+      menuSettingsBtn.addEventListener('click', () => this.showSettings());
+    }
+
     // API Key submission
     const saveApiKeyBtn = document.getElementById('saveApiKey');
     if (saveApiKeyBtn) {
@@ -73,10 +105,15 @@ class ReadingApp {
       submitBtn.addEventListener('click', () => this.submitAnswers());
     }
 
-    // Settings button
+    // Settings buttons
     const settingsBtn = document.getElementById('settingsButton');
     if (settingsBtn) {
       settingsBtn.addEventListener('click', () => this.showSettings());
+    }
+
+    const scienceSettingsBtn = document.getElementById('scienceSettingsButton');
+    if (scienceSettingsBtn) {
+      scienceSettingsBtn.addEventListener('click', () => this.showSettings());
     }
 
     // Close settings
@@ -89,6 +126,27 @@ class ReadingApp {
     const clearApiKeyBtn = document.getElementById('clearApiKey');
     if (clearApiKeyBtn) {
       clearApiKeyBtn.addEventListener('click', () => this.clearApiKey());
+    }
+
+    // Science section event listeners
+    const generateScienceBtn = document.getElementById('generateScience');
+    if (generateScienceBtn) {
+      generateScienceBtn.addEventListener('click', () => this.generateScienceArticle());
+    }
+
+    const submitScienceBtn = document.getElementById('submitScienceAnswers');
+    if (submitScienceBtn) {
+      submitScienceBtn.addEventListener('click', () => this.submitScienceAnswers());
+    }
+
+    // Allow Enter key in age input
+    const ageInput = document.getElementById('userAge');
+    if (ageInput) {
+      ageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          this.generateScienceArticle();
+        }
+      });
     }
 
     // Close modals when clicking outside
@@ -115,16 +173,14 @@ class ReadingApp {
     localStorage.setItem(CONFIG.STORAGE_KEYS.apiKey, apiKey);
     localStorage.setItem(CONFIG.STORAGE_KEYS.apiProvider, CONFIG.API_PROVIDERS.OPENROUTER);
 
-    // Initialize API handler
+    // Initialize API handler and science generator
     this.apiHandler = new APIHandler(apiKey, CONFIG.API_PROVIDERS.OPENROUTER);
+    this.scienceGenerator = new ScienceGenerator(this.apiHandler);
 
-    // Hide config and show main interface
+    // Hide config and show menu
     this.setState('ready');
     this.hideConfigInterface();
-    this.showMainInterface();
-
-    // Generate first text automatically
-    this.generateNewText();
+    this.showMenu();
   }
 
   /**
@@ -135,14 +191,20 @@ class ReadingApp {
       localStorage.removeItem(CONFIG.STORAGE_KEYS.apiKey);
       localStorage.removeItem(CONFIG.STORAGE_KEYS.apiProvider);
       this.apiHandler = null;
+      this.scienceGenerator = null;
       this.hideSettings();
       this.setState('config');
       this.showConfigInterface();
 
-      // Hide main content
+      // Hide menu and all content
+      this.hideMenu();
       const mainContent = document.getElementById('mainContent');
       if (mainContent) {
         mainContent.style.display = 'none';
+      }
+      const scienceContent = document.getElementById('scienceContent');
+      if (scienceContent) {
+        scienceContent.style.display = 'none';
       }
     }
   }
@@ -468,6 +530,26 @@ class ReadingApp {
   }
 
   /**
+   * Show menu
+   */
+  showMenu() {
+    const menu = document.getElementById('mainMenu');
+    if (menu) {
+      menu.style.display = 'block';
+    }
+  }
+
+  /**
+   * Hide menu
+   */
+  hideMenu() {
+    const menu = document.getElementById('mainMenu');
+    if (menu) {
+      menu.style.display = 'none';
+    }
+  }
+
+  /**
    * Set application state
    * @param {string} state - New state
    */
@@ -519,6 +601,259 @@ class ReadingApp {
     setTimeout(() => {
       errorDiv.remove();
     }, 5000);
+  }
+
+  /**
+   * Switch to reading mode
+   */
+  switchToReading() {
+    this.currentMode = 'reading';
+
+    // Hide menu, show reading content
+    this.hideMenu();
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('scienceContent').style.display = 'none';
+
+    // Close any open modals
+    this.closeModals();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /**
+   * Switch to science enrichment mode
+   */
+  switchToScience() {
+    this.currentMode = 'science';
+
+    // Hide menu, show science content
+    this.hideMenu();
+    document.getElementById('scienceContent').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'none';
+
+    // Close any open modals
+    this.closeModals();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /**
+   * Go back to main menu
+   */
+  backToMenu() {
+    // Show menu, hide all content
+    this.showMenu();
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('scienceContent').style.display = 'none';
+
+    // Close any open modals
+    this.closeModals();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /**
+   * Generate science article based on user age
+   */
+  async generateScienceArticle() {
+    const ageInput = document.getElementById('userAge');
+    const age = parseInt(ageInput.value);
+
+    // Validate age
+    if (!age || age < 6 || age > 18) {
+      this.showError('אנא הכנס גיל תקין (6-18)');
+      return;
+    }
+
+    if (!this.scienceGenerator) {
+      this.showError('מפתח API חסר. אנא הגדר מפתח תחילה.');
+      return;
+    }
+
+    this.setState('loading');
+    this.showLoading('מייצר מאמר מדעי...');
+
+    // Disable generate button
+    const generateBtn = document.getElementById('generateScience');
+    if (generateBtn) {
+      generateBtn.disabled = true;
+    }
+
+    try {
+      const scienceData = await this.scienceGenerator.generateScienceContent(age);
+      this.scienceGenerator.loadQuiz(scienceData);
+      this.displayScienceQuiz();
+      this.setState('answering');
+      this.hideLoading();
+    } catch (error) {
+      console.error('Error generating science content:', error);
+      this.showError(error.message);
+      this.setState('ready');
+      this.hideLoading();
+    } finally {
+      // Re-enable generate button
+      if (generateBtn) {
+        generateBtn.disabled = false;
+      }
+    }
+  }
+
+  /**
+   * Display science quiz (article and questions)
+   */
+  displayScienceQuiz() {
+    const quiz = this.scienceGenerator.getCurrentQuiz();
+    if (!quiz) return;
+
+    // Display title
+    const titleElement = document.getElementById('scienceTitle');
+    if (titleElement) {
+      titleElement.textContent = quiz.title;
+    }
+
+    // Display article text
+    const textElement = document.getElementById('scienceText');
+    if (textElement) {
+      textElement.textContent = quiz.text;
+    }
+
+    // Show sections
+    document.getElementById('scienceTextSection').style.display = 'block';
+    document.getElementById('scienceQuestionsSection').style.display = 'block';
+
+    // Display questions
+    const questionsContainer = document.getElementById('scienceQuestionsContainer');
+    if (questionsContainer) {
+      questionsContainer.innerHTML = '';
+
+      quiz.questions.forEach((question, qIdx) => {
+        const questionElement = this.createScienceQuestionElement(question, qIdx);
+        questionsContainer.appendChild(questionElement);
+      });
+    }
+
+    // Reset submit button
+    this.resetScienceSubmitButton();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /**
+   * Create HTML element for a science question
+   * @param {Object} question - Question data
+   * @param {number} questionIndex - Question index
+   * @returns {HTMLElement} Question element
+   */
+  createScienceQuestionElement(question, questionIndex) {
+    const div = document.createElement('div');
+    div.className = 'question';
+
+    const questionText = document.createElement('div');
+    questionText.className = 'question-text';
+
+    const questionNumber = document.createElement('span');
+    questionNumber.className = 'question-number';
+    questionNumber.textContent = questionIndex + 1;
+
+    const questionContent = document.createTextNode(' ' + question.question);
+
+    questionText.appendChild(questionNumber);
+    questionText.appendChild(questionContent);
+    div.appendChild(questionText);
+
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'options';
+
+    question.options.forEach((option, optIdx) => {
+      const label = document.createElement('label');
+      label.className = 'option';
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = `scienceQuestion${questionIndex}`;
+      radio.value = optIdx;
+      radio.dataset.question = questionIndex;
+      radio.addEventListener('change', (e) => this.handleScienceAnswerSelection(e));
+
+      const optionLabel = document.createElement('span');
+      optionLabel.className = 'option-label';
+      optionLabel.textContent = CONFIG.HEBREW_LETTERS[optIdx] + '.';
+
+      const optionText = document.createElement('span');
+      optionText.className = 'option-text';
+      optionText.textContent = option;
+
+      label.appendChild(radio);
+      label.appendChild(optionLabel);
+      label.appendChild(optionText);
+      optionsDiv.appendChild(label);
+    });
+
+    div.appendChild(optionsDiv);
+    return div;
+  }
+
+  /**
+   * Handle science answer selection
+   * @param {Event} event - Change event
+   */
+  handleScienceAnswerSelection(event) {
+    const questionIndex = parseInt(event.target.dataset.question);
+    const answerIndex = parseInt(event.target.value);
+
+    this.scienceGenerator.recordAnswer(questionIndex, answerIndex);
+
+    // Update submit button state
+    this.updateScienceSubmitButton();
+  }
+
+  /**
+   * Update science submit button state
+   */
+  updateScienceSubmitButton() {
+    const submitBtn = document.getElementById('submitScienceAnswers');
+    if (submitBtn) {
+      submitBtn.disabled = !this.scienceGenerator.isQuizComplete();
+
+      // Update button text to show progress
+      const answeredCount = this.scienceGenerator.getAnsweredCount();
+      const totalCount = CONFIG.SCIENCE_QUIZ_SETTINGS.questionsPerArticle;
+
+      if (answeredCount === totalCount) {
+        submitBtn.textContent = 'שלח תשובות';
+      } else {
+        submitBtn.textContent = `נענו ${answeredCount} מתוך ${totalCount}`;
+      }
+    }
+  }
+
+  /**
+   * Reset science submit button
+   */
+  resetScienceSubmitButton() {
+    const submitBtn = document.getElementById('submitScienceAnswers');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'שלח תשובות';
+    }
+  }
+
+  /**
+   * Submit science answers and show results
+   */
+  submitScienceAnswers() {
+    if (!this.scienceGenerator.isQuizComplete()) {
+      this.showError('אנא ענה על כל השאלות לפני שליחה');
+      return;
+    }
+
+    const results = this.scienceGenerator.getResults();
+    this.displayResults(results);
+    this.setState('results');
   }
 }
 

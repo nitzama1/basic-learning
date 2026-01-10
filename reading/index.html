@@ -51,10 +51,34 @@
     </div>
   </div>
 
+  <!-- Navigation Menu -->
+  <nav id="mainMenu" class="main-menu">
+    <div class="menu-container">
+      <h1 class="menu-title">📚 מערכת לימוד עברית</h1>
+      <p class="menu-subtitle">בחר את סוג התרגול שתרצה לבצע</p>
+      <div class="menu-buttons">
+        <button id="menuReading" class="menu-button">
+          <span class="menu-icon">📖</span>
+          <span class="menu-label">תרגול קריאה</span>
+          <span class="menu-description">טקסטים מעניינים ושאלות הבנה</span>
+        </button>
+        <button id="menuScience" class="menu-button">
+          <span class="menu-icon">🔬</span>
+          <span class="menu-label">העשרה מדעית</span>
+          <span class="menu-description">מאמרים מדעיים לפי גיל</span>
+        </button>
+      </div>
+      <button id="menuSettingsButton" class="button button-secondary settings-btn">הגדרות</button>
+    </div>
+  </nav>
+
   <!-- Main Content Area -->
-  <main id="mainContent">
+  <main id="mainContent" style="display: none;">
+    <div class="back-to-menu">
+      <button id="backToMenuFromReading" class="button button-secondary">← חזור לתפריט</button>
+    </div>
     <header class="app-header">
-      <h1>📚 תרגול קריאה בעברית</h1>
+      <h1 id="appTitle">📚 תרגול קריאה בעברית</h1>
       <div class="header-buttons">
         <button id="generateText" class="button button-primary">צור טקסט חדש</button>
         <button id="settingsButton" class="button button-secondary">הגדרות</button>
@@ -72,6 +96,39 @@
       <h3 class="section-title">שאלות הבנה</h3>
       <div id="questionsContainer"></div>
       <button id="submitAnswers" class="button button-success" disabled>שלח תשובות</button>
+    </section>
+  </main>
+
+  <!-- Science Enrichment Section -->
+  <main id="scienceContent" style="display: none;">
+    <div class="back-to-menu">
+      <button id="backToMenuFromScience" class="button button-secondary">← חזור לתפריט</button>
+    </div>
+    <header class="app-header">
+      <h1>🔬 העשרה מדעית</h1>
+
+      <!-- Age Input Section -->
+      <div id="ageInputSection" class="age-input-section">
+        <label for="userAge" class="age-label">כמה אתה בן/בת?</label>
+        <input type="number" id="userAge" class="age-input" min="6" max="18" placeholder="הכנס גיל">
+        <div class="age-buttons">
+          <button id="generateScience" class="button button-primary">צור מאמר מדעי</button>
+          <button id="scienceSettingsButton" class="button button-secondary">הגדרות</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Science Article Section -->
+    <section id="scienceTextSection" class="text-section" style="display: none;">
+      <h2 id="scienceTitle" class="text-title"></h2>
+      <div id="scienceText" class="reading-text"></div>
+    </section>
+
+    <!-- Science Questions Section -->
+    <section id="scienceQuestionsSection" class="questions-section" style="display: none;">
+      <h3 class="section-title">שאלות אמריקאיות</h3>
+      <div id="scienceQuestionsContainer"></div>
+      <button id="submitScienceAnswers" class="button button-success" disabled>שלח תשובות</button>
     </section>
   </main>
 
@@ -102,6 +159,7 @@
   <script src="config.js"></script>
   <script src="api-handler.js"></script>
   <script src="quiz-generator.js"></script>
+  <script src="science-generator.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
