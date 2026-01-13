@@ -96,6 +96,15 @@ body {
     color: white;
 }
 
+.menu-card.word-problems {
+    border-color: #2196f3;
+}
+
+.menu-card.word-problems:hover {
+    background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+    color: white;
+}
+
 .icon {
     font-size: 4em;
     margin-bottom: 20px;
