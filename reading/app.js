@@ -765,35 +765,54 @@ class ReadingApp {
     questionText.appendChild(questionContent);
     div.appendChild(questionText);
 
-    const optionsDiv = document.createElement('div');
-    optionsDiv.className = 'options';
+    // Check question type
+    if (question.type === 'typed') {
+      // Create text input for typed answer
+      const inputDiv = document.createElement('div');
+      inputDiv.className = 'typed-answer-container';
 
-    question.options.forEach((option, optIdx) => {
-      const label = document.createElement('label');
-      label.className = 'option';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'typed-answer-input';
+      input.placeholder = 'הקלד את תשובתך כאן...';
+      input.dataset.question = questionIndex;
+      input.addEventListener('input', (e) => this.handleTypedAnswerInput(e));
 
-      const radio = document.createElement('input');
-      radio.type = 'radio';
-      radio.name = `scienceQuestion${questionIndex}`;
-      radio.value = optIdx;
-      radio.dataset.question = questionIndex;
-      radio.addEventListener('change', (e) => this.handleScienceAnswerSelection(e));
+      inputDiv.appendChild(input);
+      div.appendChild(inputDiv);
+    } else {
+      // Create multiple choice options
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
 
-      const optionLabel = document.createElement('span');
-      optionLabel.className = 'option-label';
-      optionLabel.textContent = CONFIG.HEBREW_LETTERS[optIdx] + '.';
+      question.options.forEach((option, optIdx) => {
+        const label = document.createElement('label');
+        label.className = 'option';
 
-      const optionText = document.createElement('span');
-      optionText.className = 'option-text';
-      optionText.textContent = option;
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `scienceQuestion${questionIndex}`;
+        radio.value = optIdx;
+        radio.dataset.question = questionIndex;
+        radio.addEventListener('change', (e) => this.handleScienceAnswerSelection(e));
 
-      label.appendChild(radio);
-      label.appendChild(optionLabel);
-      label.appendChild(optionText);
-      optionsDiv.appendChild(label);
-    });
+        const optionLabel = document.createElement('span');
+        optionLabel.className = 'option-label';
+        optionLabel.textContent = CONFIG.HEBREW_LETTERS[optIdx] + '.';
 
-    div.appendChild(optionsDiv);
+        const optionText = document.createElement('span');
+        optionText.className = 'option-text';
+        optionText.textContent = option;
+
+        label.appendChild(radio);
+        label.appendChild(optionLabel);
+        label.appendChild(optionText);
+        optionsDiv.appendChild(label);
+      });
+
+      div.appendChild(optionsDiv);
+    }
+
     return div;
   }
 
@@ -806,6 +825,25 @@ class ReadingApp {
     const answerIndex = parseInt(event.target.value);
 
     this.scienceGenerator.recordAnswer(questionIndex, answerIndex);
+
+    // Update submit button state
+    this.updateScienceSubmitButton();
+  }
+
+  /**
+   * Handle typed answer input
+   * @param {Event} event - Input event
+   */
+  handleTypedAnswerInput(event) {
+    const questionIndex = parseInt(event.target.dataset.question);
+    const answer = event.target.value.trim();
+
+    if (answer.length > 0) {
+      this.scienceGenerator.recordAnswer(questionIndex, answer);
+    } else {
+      // Remove answer if input is empty
+      delete this.scienceGenerator.userAnswers[questionIndex];
+    }
 
     // Update submit button state
     this.updateScienceSubmitButton();
@@ -845,15 +883,99 @@ class ReadingApp {
   /**
    * Submit science answers and show results
    */
-  submitScienceAnswers() {
+  async submitScienceAnswers() {
     if (!this.scienceGenerator.isQuizComplete()) {
       this.showError('אנא ענה על כל השאלות לפני שליחה');
       return;
     }
 
-    const results = this.scienceGenerator.getResults();
-    this.displayResults(results);
-    this.setState('results');
+    // Show loading for AI checking
+    this.setState('loading');
+    this.showLoading('בודק תשובות...');
+
+    try {
+      const results = await this.getScienceResultsWithAICheck();
+      this.displayResults(results);
+      this.setState('results');
+    } catch (error) {
+      console.error('Error checking answers:', error);
+      this.showError(error.message);
+      this.setState('answering');
+    } finally {
+      this.hideLoading();
+    }
+  }
+
+  /**
+   * Get science results with AI checking for typed answers
+   * @returns {Promise<Object>} Results object
+   */
+  async getScienceResultsWithAICheck() {
+    const quiz = this.scienceGenerator.getCurrentQuiz();
+    const userAnswers = this.scienceGenerator.userAnswers;
+    let correctCount = 0;
+    const details = [];
+
+    // Process each question
+    for (let index = 0; index < quiz.questions.length; index++) {
+      const question = quiz.questions[index];
+      const userAnswer = userAnswers[index];
+      let isCorrect = false;
+      let correctAnswerText = '';
+      let userAnswerText = '';
+
+      if (question.type === 'typed') {
+        // Check typed answer using AI
+        try {
+          const aiResult = await this.apiHandler.checkTypedAnswer(
+            question.question,
+            userAnswer,
+            question.correctAnswer,
+            question.acceptableAnswers || [],
+            quiz.text
+          );
+
+          isCorrect = aiResult.isCorrect;
+          correctAnswerText = question.correctAnswer;
+          userAnswerText = userAnswer;
+        } catch (error) {
+          console.error('AI check error:', error);
+          // Fallback to simple string comparison
+          isCorrect = userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+          correctAnswerText = question.correctAnswer;
+          userAnswerText = userAnswer;
+        }
+      } else {
+        // Multiple choice - standard checking
+        isCorrect = userAnswer === question.correctIndex;
+        correctAnswerText = question.options[question.correctIndex];
+        userAnswerText = question.options[userAnswer];
+      }
+
+      if (isCorrect) {
+        correctCount++;
+      }
+
+      details.push({
+        questionNumber: index + 1,
+        question: question.question,
+        userAnswer: userAnswerText,
+        correctAnswer: correctAnswerText,
+        isCorrect: isCorrect
+      });
+    }
+
+    const total = quiz.questions.length;
+    const percentage = Math.round((correctCount / total) * 100);
+    const message = this.scienceGenerator.getEncouragementMessage(percentage);
+
+    return {
+      score: correctCount,
+      total: total,
+      percentage: percentage,
+      message: message,
+      details: details
+    };
   }
 }
 

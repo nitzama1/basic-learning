@@ -776,6 +776,53 @@ body[data-state="answering"] #resultsContainer {
   display: none;
 }
 
+/* === Typed Answer Input === */
+.typed-answer-container {
+  margin-top: 15px;
+  padding: 10px;
+}
+
+.typed-answer-input {
+  width: 100%;
+  padding: 18px 20px;
+  font-size: 20px;
+  border: 3px solid #E0E0E0;
+  border-radius: 10px;
+  font-family: 'Heebo', sans-serif;
+  direction: rtl;
+  text-align: right;
+  background: white;
+  transition: all 0.3s ease;
+  min-height: 56px;
+}
+
+.typed-answer-input:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  background: #F8FBFF;
+}
+
+.typed-answer-input::placeholder {
+  color: #9E9E9E;
+  font-size: 18px;
+}
+
+.typed-answer-input:not(:placeholder-shown) {
+  border-color: #4CAF50;
+  background: #F1F8F4;
+}
+
+/* Highlight typed answer question */
+.question:has(.typed-answer-input) {
+  border-right: 5px solid #FF9800;
+  background: linear-gradient(to left, #FFF9F0 0%, #F8F9FA 100%);
+}
+
+.question:has(.typed-answer-input) .question-number {
+  background: #FF9800;
+}
+
 /* === Print Styles === */
 @media print {
   .button,
@@ -790,5 +837,20 @@ body[data-state="answering"] #resultsContainer {
 
   body {
     background: white;
+  }
+}
+
+/* === Responsive - Typed Input === */
+@media (max-width: 768px) {
+  .typed-answer-input {
+    font-size: 18px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .typed-answer-input {
+    font-size: 16px;
+    padding: 12px;
   }
 }

@@ -40,30 +40,35 @@ class ScienceGenerator {
     const selectedTopic = this.getRandomScienceTopic();
     const gradeLevel = this.getGradeFromAge(age);
 
-    return `אתה מורה למדעים המתמחה בהעשרה מדעית לילדים. צור מאמר מדעי מעניין ומדויק עובדתית בעברית ושאלות אמריקאיות (בחירה מרובה).
+    return `אתה מורה למדעים המתמחה בהעשרה מדעית לילדים. צור מאמר מדעי מעניין ומתקדם יותר ומדויק עובדתית בעברית ושאלות (אמריקאיות + שאלה פתוחה).
 
 דרישות למאמר המדעי:
 1. אורך: ${CONFIG.SCIENCE_QUIZ_SETTINGS.minWordCount}-${CONFIG.SCIENCE_QUIZ_SETTINGS.maxWordCount} מילים
-2. רמת קושי: מתאים לגיל ${age} (כיתה ${gradeLevel})
+2. רמת קושי: מתאים לגיל ${age} (כיתה ${gradeLevel}) - **רמה מתקדמת יותר**
 3. נושא: ${selectedTopic}
 4. **חשוב מאוד: כל המידע חייב להיות מדויק ועובדתי מבחינה מדעית**
-5. הסבר תופעות מדעיות באופן ברור ומעניין
-6. השתמש במושגים מדעיים מתאימים לגיל
+5. הסבר תופעות מדעיות באופן ברור ומעניין עם עומק
+6. השתמש במושגים מדעיים מתקדמים יותר המתאימים לגיל
 7. ללא נקודות (כתיב חסר)
-8. הוסף עובדות מעניינות ודוגמאות מהחיים
-9. הטקסט צריך להיות חינוכי ולעורר סקרנות מדעית
+8. הוסף עובדות מעניינות, דוגמאות מהחיים, וקשרים בין מושגים
+9. הטקסט צריך להיות חינוכי, מפורט ולעורר סקרנות מדעית
+10. כלול פרטים ספציפיים שיאפשרו לילד לחפש תשובות בטקסט
 
-דרישות לשאלות אמריקאיות:
-1. בדיוק ${CONFIG.SCIENCE_QUIZ_SETTINGS.questionsPerArticle} שאלות סגורות (אמריקאיות)
-2. כל שאלה עם ${CONFIG.SCIENCE_QUIZ_SETTINGS.optionsPerQuestion} אפשרויות תשובה
-3. תשובה אחת נכונה בלבד
-4. שאלות שבודקות:
+דרישות לשאלות:
+1. בדיוק ${CONFIG.SCIENCE_QUIZ_SETTINGS.multipleChoiceQuestions} שאלות אמריקאיות (בחירה מרובה)
+2. כל שאלה אמריקאית עם ${CONFIG.SCIENCE_QUIZ_SETTINGS.optionsPerQuestion} אפשרויות תשובה
+3. בדיוק ${CONFIG.SCIENCE_QUIZ_SETTINGS.typedQuestions} שאלה פתוחה שדורשת הקלדת תשובה
+4. השאלה הפתוחה צריכה:
+   - לדרוש מהילד לחפש מידע ספציפי בטקסט
+   - תשובה קצרה (1-5 מילים)
+   - להיות ברורה ומדויקת
+   - לבדוק הבנה עמוקה או זכירת פרט חשוב
+5. השאלות האמריקאיות שבודקות:
    - הבנת תופעות מדעיות (2 שאלות)
-   - זכירת עובדות מדעיות (2 שאלות)
+   - זכירת עובדות מדעיות (1 שאלה)
    - הסקת מסקנות מדעיות (1 שאלה)
-5. **כל התשובות חייבות להיות מדויקות מדעית**
-6. אפשרויות התשובה השגויות צריכות להיות סבירות אך ברור שגויות
-7. כל האפשרויות צריכות להיות באורך דומה
+6. **כל התשובות חייבות להיות מדויקות מדעית**
+7. אפשרויות התשובה השגויות צריכות להיות סבירות אך ברור שגויות
 
 החזר את התשובה בפורמט JSON הבא בדיוק:
 {
@@ -71,14 +76,26 @@ class ScienceGenerator {
   "title": "כותרת מעניינת למאמר",
   "questions": [
     {
+      "type": "multiple_choice",
       "question": "השאלה?",
       "options": ["תשובה 1", "תשובה 2", "תשובה 3", "תשובה 4"],
-      "correctIndex": 0
+      "correctIndex": 2
+    },
+    {
+      "type": "typed",
+      "question": "השאלה הפתוחה?",
+      "correctAnswer": "התשובה הנכונה",
+      "acceptableAnswers": ["תשובה חלופית 1", "תשובה חלופית 2"]
     }
   ]
 }
 
-חשוב מאוד: החזר רק את ה-JSON, ללא טקסט נוסף לפני או אחרי.`;
+חשוב מאוד:
+- **ערבב את מיקום התשובות הנכונות!** אל תשים את כל התשובות הנכונות באינדקס 0
+- correctIndex יכול להיות 0, 1, 2, או 3 - וודא שיש שונות בין השאלות
+- השאלה הפתוחה צריכה להיות האחרונה ברשימה (שאלה מספר 5)
+- ב-acceptableAnswers כלול וריאציות קצרות של התשובה הנכונה
+- החזר רק את ה-JSON, ללא טקסט נוסף לפני או אחרי.`;
   }
 
   /**
@@ -159,25 +176,46 @@ class ScienceGenerator {
     for (let i = 0; i < content.questions.length; i++) {
       const question = content.questions[i];
 
-      // Check question structure
-      if (!question.question || !question.options || typeof question.correctIndex !== 'number') {
+      // Check if question has required fields
+      if (!question.question || !question.type) {
         return false;
       }
 
-      // Check if there are exactly 4 options
-      if (!Array.isArray(question.options) ||
-          question.options.length !== CONFIG.SCIENCE_QUIZ_SETTINGS.optionsPerQuestion) {
-        return false;
-      }
+      // Validate based on question type
+      if (question.type === 'multiple_choice') {
+        // Check multiple choice structure
+        if (!question.options || typeof question.correctIndex !== 'number') {
+          return false;
+        }
 
-      // Check if correctIndex is valid (0-3)
-      if (question.correctIndex < 0 ||
-          question.correctIndex >= CONFIG.SCIENCE_QUIZ_SETTINGS.optionsPerQuestion) {
-        return false;
-      }
+        // Check if there are exactly 4 options
+        if (!Array.isArray(question.options) ||
+            question.options.length !== CONFIG.SCIENCE_QUIZ_SETTINGS.optionsPerQuestion) {
+          return false;
+        }
 
-      // Check if all options are non-empty strings
-      if (!question.options.every(opt => typeof opt === 'string' && opt.trim().length > 0)) {
+        // Check if correctIndex is valid (0-3)
+        if (question.correctIndex < 0 ||
+            question.correctIndex >= CONFIG.SCIENCE_QUIZ_SETTINGS.optionsPerQuestion) {
+          return false;
+        }
+
+        // Check if all options are non-empty strings
+        if (!question.options.every(opt => typeof opt === 'string' && opt.trim().length > 0)) {
+          return false;
+        }
+      } else if (question.type === 'typed') {
+        // Check typed question structure
+        if (!question.correctAnswer || typeof question.correctAnswer !== 'string') {
+          return false;
+        }
+
+        // acceptableAnswers is optional but should be an array if present
+        if (question.acceptableAnswers && !Array.isArray(question.acceptableAnswers)) {
+          return false;
+        }
+      } else {
+        // Unknown question type
         return false;
       }
     }

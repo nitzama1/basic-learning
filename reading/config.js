@@ -68,8 +68,10 @@ const CONFIG = {
   SCIENCE_QUIZ_SETTINGS: {
     questionsPerArticle: 5,
     optionsPerQuestion: 4,
-    minWordCount: 150,
-    maxWordCount: 250
+    minWordCount: 200,
+    maxWordCount: 350,
+    multipleChoiceQuestions: 4,  // Number of multiple choice questions
+    typedQuestions: 1  // Number of typed answer questions
   },
 
   // Encouragement Messages Based on Score

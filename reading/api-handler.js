@@ -281,6 +281,56 @@ class APIHandler {
   }
 
   /**
+   * Check if a typed answer is correct using AI
+   * @param {string} question - The question text
+   * @param {string} userAnswer - User's typed answer
+   * @param {string} correctAnswer - The correct answer
+   * @param {Array<string>} acceptableAnswers - List of acceptable answer variations
+   * @param {string} context - The article text for context
+   * @returns {Promise<Object>} Result with isCorrect and feedback
+   */
+  async checkTypedAnswer(question, userAnswer, correctAnswer, acceptableAnswers = [], context = '') {
+    try {
+      const prompt = `אתה בודק תשובות לשאלות מדעיות. עליך לקבוע אם תשובת התלמיד נכונה.
+
+השאלה: ${question}
+
+התשובה הנכונה: ${correctAnswer}
+
+תשובות מקובלות נוספות: ${acceptableAnswers.length > 0 ? acceptableAnswers.join(', ') : 'אין'}
+
+תשובת התלמיד: ${userAnswer}
+
+הקשר (מהמאמר): ${context.substring(0, 500)}...
+
+עליך לבדוק:
+1. האם התשובה נכונה מבחינה עובדתית?
+2. האם היא תואמת לתשובה הנכונה או לאחת מהתשובות המקובלות?
+3. התעלם משגיאות כתיב קלות או ניסוחים שונים אם המשמעות זהה
+
+החזר תשובה בפורמט JSON בלבד:
+{
+  "isCorrect": true/false,
+  "feedback": "הסבר קצר למה התשובה נכונה או שגויה"
+}
+
+חשוב: החזר רק JSON, ללא טקסט נוסף.`;
+
+      const response = await this.makeAPICall(prompt);
+      const result = this.parseResponse(response);
+
+      // Validate result structure
+      if (typeof result.isCorrect !== 'boolean' || !result.feedback) {
+        throw new Error('Invalid AI response format');
+      }
+
+      return result;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
    * Handle API errors and return user-friendly messages
    * @param {Error} error - The error object
    * @returns {Error} User-friendly error
